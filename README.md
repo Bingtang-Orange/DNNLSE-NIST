@@ -42,15 +42,15 @@ DNNLSE-NIST/
 ├── tests/                                 # Unit verification tests
 │   └── test_scalar_rhp_delta.m            # Accuracy verification for scalar delta(lambda)
 └── examples/                              # Complete paper reproduction scripts
-    ├── quickstart_direct_scattering.m     # Quickstart demo: Single-point direct scattering
-    ├── run_step_validation_table.m        # Sec 3.2.1: Closed-form step benchmark Table
-    ├── run_fig_step_error_benchmark.m     # Fig 4: Error distribution across 4 step profiles
-    ├── run_fig_truncation_test.m          # Fig 5: Truncation domain length L convergence
-    ├── run_fig_reflection_coefficients.m  # Fig 5: Real/imaginary/modulus reflection profiles
-    ├── run_fig_rhp1_evolution.m           # Sec 5.1: Short-time wavepacket profiles (t = 0, 1, 2)
-    ├── run_fig_rhp2_evolution.m           # Figs 16-18: Multi-scale dynamics and envelopes
-    ├── run_fig_rhp4_t100_envelope.m       # Fig 17: Large-time (t = 100) profile & zero-sum test
-    ├── run_fig_rhp4_t500_demod.m          # Fig 18: Demodulated slow-varying profile at t = 500
-    ├── run_fig_cross_validation.m         # Fig 1: Cross-stage validation (RHP II vs RHP IV)
-    ├── run_fig_p_convergence.m            # Fig 2: Geometric p-spectral convergence (10^-12)
-    └── run_fig_decay_slope_benchmark.m    # Fig 21: x = -3t anomalous decay rate fitting
+    ├── quickstart_direct_scattering.m     # Single-point direct scattering
+    ├── run_step_validation_table.m        # Closed-form step benchmark Table
+    ├── run_fig_step_error_benchmark.m     # Error distribution across 4 step profiles
+    ├── run_fig_truncation_test.m          # Truncation domain length L convergence
+    ├── run_fig_reflection_coefficients.m  # Real/imaginary/modulus reflection profiles
+    ├── run_fig_rhp1_evolution.m           # Short-time wavepacket profiles (t = 0, 1, 2)
+    ├── run_fig_rhp2_evolution.m           # Multi-scale dynamics and envelopes
+    ├── run_fig_rhp4_t100_envelope.m       # Large-time (t = 100) profile & zero-sum test
+    ├── run_fig_rhp4_t500_demod.m          # Demodulated slow-varying profile at t = 500
+    ├── run_fig_cross_validation.m         # Cross-stage validation (RHP II vs RHP IV)
+    ├── run_fig_p_convergence.m            # Geometric p-spectral convergence (10^-12)
+    └── run_fig_decay_slope_benchmark.m    # x = -3t anomalous decay rate fitting
