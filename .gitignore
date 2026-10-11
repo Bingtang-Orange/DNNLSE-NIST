@@ -1,11 +1,16 @@
-# MATLAB temporary files
+# MATLAB temporary files & logs
 *.asv
 *.m~
 *.slxc
 *.mat.tmp
+matlab_crash_dump.*
 slprj/
 Derived/
 .SimulinkCache/
+
+# IDE & Editor files
+.vscode/
+.idea/
 
 # OS generated files
 Thumbs.db
