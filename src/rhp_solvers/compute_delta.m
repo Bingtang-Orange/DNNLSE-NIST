@@ -17,14 +17,6 @@ function [delta_val, chi_val] = compute_delta(lambda_targets, lambda0, q0, L_spa
 % Outputs:
 %   delta_val      - Evaluated scalar function delta(lambda)
 %   chi_val        - Complex phase exponent chi(lambda) = log(delta(lambda))
-%
-% Description:
-%   Solves the jump relation delta_+ = delta_- * (1 - rho*rho_hat) across [lambda0, +inf).
-%   The semi-infinite cut is mapped to [-1, 1], expanded via Chebyshev polynomials,
-%   and evaluated off the cut via the exterior Joukowsky conformal mapping.
-%
-% References:
-%   Section 4.1 and Section 4.2.
 
     if nargin < 4 || isempty(L_space),    L_space = 20.0;    end
     if nargin < 5 || isempty(L_spectral), L_spectral = 8.0;  end
@@ -36,7 +28,7 @@ function [delta_val, chi_val] = compute_delta(lambda_targets, lambda0, q0, L_spa
 
     % 1. Rapid exit if saddle point lies beyond effective spectral support
     if lambda0 >= L_spectral - 1e-12
-        chi_val = complex(zeros(M_pts, 1));
+        chi_val   = complex(zeros(M_pts, 1));
         delta_val = complex(ones(M_pts, 1));
         return;
     end
@@ -51,10 +43,19 @@ function [delta_val, chi_val] = compute_delta(lambda_targets, lambda0, q0, L_spa
     % Compute reflection coefficients along the branch cut
     [rho_xi, rho_hat_xi] = compute_reflection(xi_nodes, q0, L_space);
     det_factor = 1.0 - rho_xi .* rho_hat_xi;
-    det_factor(det_factor <= 1e-15) = 1e-15; % Regularize near-zero factors
-    h_nodes = log(det_factor);
 
-    % Chebyshev expansion coefficients
+    % [Fix C04]: Check singularity using complex modulus, avoiding invalid real-part relational comparisons
+    tol_singularity = 1e-14;
+    if any(abs(det_factor) < tol_singularity)
+        error('compute_delta: Singularity detected: 1 - rho*rho_hat vanishes on the branch cut.');
+    end
+
+    % [Fix M06]: Continuous branch selection via phase unwrapping
+    % Ensures h(xi) is smooth and prevents 2*pi*i artificial jumps across negative real axis
+    theta_continuous = unwrap(angle(det_factor));
+    h_nodes = log(abs(det_factor)) + 1i * theta_continuous;
+
+    % Chebyshev expansion coefficients on [-1, 1]
     F = inv(cheby(x_I, N_delta));
     c_coeffs = F * h_nodes;
 
@@ -65,10 +66,11 @@ function [delta_val, chi_val] = compute_delta(lambda_targets, lambda0, q0, L_spa
     tol_edge = 1e-8;
 
     is_real_axis  = abs(imag(w)) < tol_zero;
+    % Strictly inside the cut interval (-1, 1)
     is_inside_cut = (real(w) > -1.0 + tol_edge) & (real(w) < 1.0 - tol_edge);
     on_cut_mask   = is_real_axis & is_inside_cut;
 
-    % 4. Handle boundary limits for evaluation points residing on the cut
+    % 4. Handle boundary limits for evaluation points residing strictly on the cut
     if any(on_cut_mask)
         w_real = real(w(on_cut_mask));
         if numel(which_side) == M_pts
@@ -83,12 +85,24 @@ function [delta_val, chi_val] = compute_delta(lambda_targets, lambda0, q0, L_spa
         end
     end
 
-    % Numerical boundary clipping near branch singularities
-    w(real(w) <= -1.0 + tol_edge & is_real_axis) = -1.0 + tol_edge;
-    w(real(w) >=  1.0 - tol_edge & is_real_axis) =  1.0 - tol_edge;
+    % [Fix C05]: Local-only clipping near branch points.
+    % Only points inside the small neighbor intervals [-1, -1+tol_edge] and [1-tol_edge, 1]
+    % are clipped. Exterior points (w < -1 or w > 1) are untouched!
+    near_left_branch  = is_real_axis & (real(w) >= -1.0) & (real(w) <= -1.0 + tol_edge);
+    near_right_branch = is_real_axis & (real(w) <=  1.0) & (real(w) >=  1.0 - tol_edge);
+    w(near_left_branch)  = -1.0 + tol_edge;
+    w(near_right_branch) =  1.0 - tol_edge;
 
-    % 5. Joukowsky inverse map and global Cauchy basis matrix evaluation
+    % 5. Joukowsky inverse map: T_+^{-1}(w) = w - sqrt(w - 1)*sqrt(w + 1)
     z = w - sqrt(w - 1) .* sqrt(w + 1);
+
+    % [Fix Numerical Stability]: Enforce strictly |z| < 1 to prevent blow-up in psi_row recurrence
+    abs_z = abs(z);
+    overflow_mask = (abs_z >= 1.0);
+    if any(overflow_mask)
+        z(overflow_mask) = z(overflow_mask) ./ (abs_z(overflow_mask) + eps) * (1.0 - 1e-14);
+    end
+
     Psi_z = psi_row(z, N_delta);
 
     chi_val   = Psi_z * c_coeffs;
