@@ -1,49 +1,37 @@
 function C = cauchy_def_5_8(x, n, def_src, def_tgt)
-% CAUCHY_DEF_5_8 Implements discrete Cauchy operator C[Gamma, Omega] for connected contours.
+%CAUCHY_DEF_5_8 Compute discrete Cauchy operator for connected contours.
+%   C = CAUCHY_DEF_5_8(X, N, DEF_SRC, DEF_TGT) evaluates the discrete
+%   Cauchy transform matrix between connected source and target contours.
 %
-% Syntax:
-%   C = cauchy_def_5_8(x, n, def_src, def_tgt)
+%   Inputs:
+%       x       - Collocation nodes on target contour (length n_Omega)
+%       n       - Number of polynomial basis functions on source contour
+%       def_src - Source contour definition structure
+%       def_tgt - Target contour definition structure
 %
-% Inputs:
-%   x       - Collocation nodes on target contour Omega (length n_Omega)
-%   n       - Number of polynomial basis functions on source contour Gamma
-%   def_src - Source contour definition struct Gamma (bounded interval or arc)
-%   def_tgt - Target contour definition struct Omega (meeting Gamma at an endpoint)
-%
-% Outputs:
-%   C       - Discrete Cauchy transform matrix of size n_Omega x n
-%
-% Description:
-%   Resolves endpoint singularity where Omega intersects Gamma via:
-%   (i)   conformal chain-rule derivative calculations dw/dx = M_src'(z) * dz/dx;
-%   (ii)  logarithmic phase corrections and singular boundary vectors mu;
-%   (iii) boundary derivative rank-one corrections to preserve L^2 operator boundedness.
-%
-% References:
-%   S. Olver, Numer. Math. (2012), Definition 5.8 and Algorithm 5.4.
+%   Outputs:
+%       C       - Discrete Cauchy transform matrix of size length(x) x n
 
     tol = 1e-12;
     n_Omega = length(x);
 
-    % 1. Determine junction topology (Cases 1-4)
     [tgt_start, tgt_end] = get_curve_endpoints(def_tgt);
 
     w_start = forward_map(def_src, tgt_start);
     w_end   = forward_map(def_src, tgt_end);
 
     if abs(w_start - 1) < tol
-        case_id = 1;  % Target starts at w = +1 (right end of source)
+        case_id = 1;
     elseif abs(w_start + 1) < tol
-        case_id = 2;  % Target starts at w = -1 (left end of source)
+        case_id = 2;
     elseif abs(w_end - 1) < tol
-        case_id = 3;  % Target terminates at w = +1 (right end of source)
+        case_id = 3;
     elseif abs(w_end + 1) < tol
-        case_id = 4;  % Target terminates at w = -1 (left end of source)
+        case_id = 4;
     else
         error('cauchy_def_5_8: Target endpoint must connect to +/-1 in the conformal w-plane.');
     end
 
-    % 2. Compute composite chain-rule derivatives dw/dx = M_src'(z) * dz/dx
     if strcmp(def_tgt.type, 'ray')
         if isfield(def_tgt, 'direction') && strcmp(def_tgt.direction, 'backward')
             x_tgt_full = [-1; x(:)];
@@ -61,7 +49,6 @@ function C = cauchy_def_5_8(x, n, def_src, def_tgt)
     dw_dx_L = M_prime_start * dz_dx_tgt(1);
     dw_dx_R = M_prime_end   * dz_dx_tgt(end);
 
-    % 3. Set tangent angles, correction vectors, and directional signs
     k_vec = 0:n-1;
     r_R = ones(1, n) / (2*1i*pi);
     r_L = -(-1).^k_vec / (2*1i*pi);
@@ -81,7 +68,6 @@ function C = cauchy_def_5_8(x, n, def_src, def_tgt)
             r_vec = r_L; sign_val = -1;
     end
 
-    % 4. Retrieve boundary limit vector mu via Algorithm 5.4
     [mu_L, mu_R] = get_mu_vectors(n);
     if case_id == 2 || case_id == 4
         mu_vec = mu_L;
@@ -89,11 +75,9 @@ function C = cauchy_def_5_8(x, n, def_src, def_tgt)
         mu_vec = mu_R;
     end
 
-    % 5. Assemble regularized endpoint boundary row
     factor = 1i * angle(sign_val * exp(1i*theta)) - log(2);
     mu_row = mu_vec + factor * r_vec;
 
-    % 6. Evaluate basis on strictly exterior interior nodes (|z_psi| < 1)
     pts_tgt = curve_mapping(def_tgt, x_tgt_full);
     z_full = pts_tgt{1};
 
@@ -107,19 +91,16 @@ function C = cauchy_def_5_8(x, n, def_src, def_tgt)
     z_psi = w_remain - sqrt(w_remain - 1) .* sqrt(1 + w_remain);
     Psi_z = psi_row(z_psi, n);
 
-    % 7. Assemble regularized matrix M
     if case_id == 1 || case_id == 2
         M = [mu_row; Psi_z];
     else
         M = [Psi_z; mu_row];
     end
 
-    % 8. Apply inverse discrete Chebyshev transformation
     x_I = flipud(cos(pi*(0:n-1)'/(n-1)));
     F = inv(cheby(x_I, n));
     C = M * F;
 
-    % 9. Apply endpoint metric derivative corrections (Definition 5.8)
     x_dummy = [-1; 1];
     [~, log_dM_L, log_dM_R] = curve_derivative(def_src, x_dummy);
 
@@ -135,9 +116,6 @@ function C = cauchy_def_5_8(x, n, def_src, def_tgt)
     end
 end
 
-% =========================================================================
-% Helper Function 1: Extract Physical Curve Endpoints
-% =========================================================================
 function [z_start, z_end] = get_curve_endpoints(def)
     switch def.type
         case 'interval'
@@ -159,9 +137,6 @@ function [z_start, z_end] = get_curve_endpoints(def)
     end
 end
 
-% =========================================================================
-% Helper Function 2: Generate Singular Boundary Vectors mu (Algorithm 5.4)
-% =========================================================================
 function [mu_L, mu_R] = get_mu_vectors(n)
     mu_vals = zeros(1, n);
     for k = 1:n-1

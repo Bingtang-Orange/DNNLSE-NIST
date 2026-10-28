@@ -1,31 +1,19 @@
 function Psi_z = psi_row(z, n)
-% PSI_ROW Evaluates the exterior Cauchy transform basis matrix Psi_n^z.
+%PSI_ROW Evaluate exterior Cauchy transform basis matrix.
+%   PSI_Z = PSI_ROW(Z, N) evaluates the exterior discrete Cauchy basis matrix
+%   for points Z satisfying |z| < 1.
 %
-% Syntax:
-%   Psi_z = psi_row(z, n)
+%   Inputs:
+%       z     - Vector of evaluation points mapped by T_+^{-1} (|z| < 1)
+%       n     - Number of Chebyshev basis polynomials
 %
-% Inputs:
-%   z     - Vector of evaluation points mapped by T_+^{-1} satisfying |z| < 1
-%   n     - Number of Chebyshev basis polynomials
-%
-% Outputs:
-%   Psi_z - Matrix of size length(z) x n representing Cauchy basis evaluations
-%
-% Description:
-%   Implements Algorithm 5.2 of Olver (2012). To prevent catastrophic cancellation,
-%   a hybrid evaluation scheme is adopted:
-%   (i)  For |z| < 0.8: dynamic adaptive Taylor series summation to machine precision;
-%   (ii) For |z| >= 0.8: closed-form algebraic evaluation via leading logarithm psi_0.
-%   Two-sided finite-difference recurrences generate the intermediate basis sequence.
-%
-% References:
-%   S. Olver, Numer. Math. (2012), Algorithm 5.2.
+%   Outputs:
+%       Psi_z - Matrix of size length(z) x n representing Cauchy basis evaluations
 
     z = z(:);
     m = length(z);
     Psi_z = zeros(m, n);
 
-    % Base evaluation psi_0(z)
     psi_0 = (2 / (1i * pi)) * atanh(z);
 
     if n == 1
@@ -33,7 +21,6 @@ function Psi_z = psi_row(z, n)
         return;
     end
 
-    % 1. Evaluate seed term psi_{1-n}(z)
     J = floor((n - 1) / 2);
     p = 2 * (J + 1) - n;
 
@@ -43,7 +30,6 @@ function Psi_z = psi_row(z, n)
     mask_small = (abs_z < 0.8);
     mask_large = ~mask_small;
 
-    % (A) Small-modulus set (|z| < 0.8): adaptive series expansion
     if any(mask_small)
         z_s = z(mask_small);
         w_s = z_s.^2;
@@ -69,7 +55,6 @@ function Psi_z = psi_row(z, n)
         psi_seed(mask_small) = sum_s .* term_s;
     end
 
-    % (B) Large-modulus set (|z| >= 0.8): closed-form subtraction
     if any(mask_large)
         z_l = z(mask_large);
         mu_l = zeros(size(z_l));
@@ -79,12 +64,10 @@ function Psi_z = psi_row(z, n)
         psi_seed(mask_large) = (z_l.^(1 - n)) .* (psi_0(mask_large) - (2 / (1i * pi)) * mu_l);
     end
 
-    % 2. Full recurrence across indices (Algorithm 5.2)
     psi = zeros(m, 2*n - 1);
-    psi(:, n) = psi_0;          % Index k = 0
-    psi(:, 1) = psi_seed;       % Index k = 1 - n
+    psi(:, n) = psi_0;
+    psi(:, 1) = psi_seed;
 
-    % Negative recurrence: k from (2 - n) down to -1
     for k = (2 - n) : -1
         if mod(k, 2) ~= 0
             psi(:, k + n) = z .* psi(:, k + n - 1) - 2 / (1i * pi * k);
@@ -93,7 +76,6 @@ function Psi_z = psi_row(z, n)
         end
     end
 
-    % Positive recurrence: k from 1 up to (n - 1)
     for k = 1 : (n - 1)
         if mod(k, 2) ~= 0
             psi(:, k + n) = z .* psi(:, k + n - 1) - 2 / (1i * pi * k);
@@ -102,7 +84,6 @@ function Psi_z = psi_row(z, n)
         end
     end
 
-    % 3. Assemble discrete Cauchy basis matrix
     Psi_z(:, 1) = -psi(:, n);
     for i = 2:n
         Psi_z(:, i) = -0.5 * (psi(:, n - i + 1) + psi(:, n + i - 1));

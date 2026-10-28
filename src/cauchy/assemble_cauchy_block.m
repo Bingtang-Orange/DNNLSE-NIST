@@ -1,29 +1,19 @@
 function C = assemble_cauchy_block(x_tgt, n_src, def_src, def_tgt, is_self)
-% ASSEMBLE_CAUCHY_BLOCK Automatically dispatches and constructs pairwise Cauchy blocks.
+%ASSEMBLE_CAUCHY_BLOCK Construct discrete Cauchy transform interaction block.
+%   C = ASSEMBLE_CAUCHY_BLOCK(X_TGT, N_SRC, DEF_SRC, DEF_TGT)
+%   C = ASSEMBLE_CAUCHY_BLOCK(X_TGT, N_SRC, DEF_SRC, DEF_TGT, IS_SELF)
+%   evaluates the discrete Cauchy transform block matrix between source
+%   and target contours based on their geometric types and connectivity.
 %
-% Syntax:
-%   C = assemble_cauchy_block(x_tgt, n_src, def_src, def_tgt)
-%   C = assemble_cauchy_block(x_tgt, n_src, def_src, def_tgt, is_self)
+%   Inputs:
+%       x_tgt   - Collocation nodes on [-1, 1] for the target contour
+%       n_src   - Polynomial basis dimension on the source contour
+%       def_src - Geometric structure defining the source contour
+%       def_tgt - Geometric structure defining the target contour
+%       is_self - (Optional) Boolean flag indicating self-interaction
 %
-% Inputs:
-%   x_tgt   - Collocation nodes on the reference interval [-1, 1] for target contour
-%   n_src   - Polynomial basis dimension on the source contour
-%   def_src - Geometric struct defining the source contour
-%   def_tgt - Geometric struct defining the target contour
-%   is_self - (Optional) Boolean flag indicating diagonal self-interaction (i == j)
-%
-% Outputs:
-%   C       - Discrete Cauchy transform block matrix of size length(x_tgt) x n_src
-%
-% Description:
-%   Inspects source/target geometries and endpoint connectivity to dispatch the
-%   appropriate discrete Cauchy operator from the hierarchy (Definitions 5.1-5.14),
-%   strictly following the operator classification in Olver (2012), Table 1.
-%
-% References:
-%   S. Olver, Numer. Math. 122 (2012), Section 5, Table 1.
-%   T. Trogdon and S. Olver, "Riemann-Hilbert Problems, Their Numerical Solution,
-%   and the Computation of Nonlinear Special Functions", SIAM (2016).
+%   Outputs:
+%       C       - Discrete Cauchy transform block matrix of size length(x_tgt) x n_src
 
     if nargin < 5 || isempty(is_self)
         is_self = check_identical_curve(def_src, def_tgt);
@@ -38,7 +28,6 @@ function C = assemble_cauchy_block(x_tgt, n_src, def_src, def_tgt, is_self)
         is_connected = check_connected(def_src, def_tgt);
     end
 
-    % Dispatch based on Olver (2012) Table 1 classification
     if is_identity_src
         if is_self
             C = cauchy_def_5_1(x_tgt, n_src);
@@ -76,9 +65,6 @@ function C = assemble_cauchy_block(x_tgt, n_src, def_src, def_tgt, is_self)
     end
 end
 
-% =========================================================================
-% Helper Functions: Geometric Topology Verification
-% =========================================================================
 function flag = check_connected(def_src, def_tgt)
     tol = 1e-11;
     src_ends = get_ends(def_src);
