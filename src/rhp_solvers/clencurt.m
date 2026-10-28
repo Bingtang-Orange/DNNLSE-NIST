@@ -1,26 +1,15 @@
 function w = clencurt(n)
-% CLENCURT Computes Clenshaw-Curtis quadrature weights on Chebyshev-Lobatto nodes.
+%CLENCURT Compute Clenshaw-Curtis quadrature weights on Chebyshev-Lobatto nodes.
+%   W = CLENCURT(N) computes the Clenshaw-Curtis quadrature weights W
+%   for N collocation points on the reference interval [-1, 1].
 %
-% Syntax:
-%   w = clencurt(n)
+%   Inputs:
+%       n - Number of quadrature nodes in [-1, 1] including endpoints (n >= 1)
 %
-% Inputs:
-%   n - Number of quadrature nodes in [-1, 1] including endpoints (n >= 1)
-%
-% Outputs:
-%   w - Row vector of quadrature weights of length n, satisfying:
-%       \int_{-1}^{1} f(x) dx \approx w * f(x)
-%
-% Description:
-%   Evaluates exact Clenshaw-Curtis integration weights for Chebyshev-Lobatto 
-%   collocation points x_j = cos(j*pi/(n-1)). Used for high-precision numerical
-%   quadrature in scalar delta(lambda) evaluations and asymptotic potential reconstruction.
-%
-% References:
-%   C. W. Clenshaw and A. R. Curtis, Numer. Math. 2 (1960), pp. 197-205.
-%   L. N. Trefethen, "Spectral Methods in MATLAB", SIAM, Philadelphia (2000), Chapter 12.
+%   Outputs:
+%       w - Row vector of quadrature weights of length n
 
-    N = n - 1; % Polynomial degree
+    N = n - 1;
     if N == 0
         w = 2;
         return;
@@ -28,7 +17,7 @@ function w = clencurt(n)
 
     theta = pi * (0:N)' / N;
     w = zeros(1, N+1);
-    ii = 2:N; % Interior node indices
+    ii = 2:N;
     v = ones(N-1, 1);
 
     if mod(N, 2) == 0
