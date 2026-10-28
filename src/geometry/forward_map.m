@@ -1,24 +1,16 @@
 function [x, M_prime] = forward_map(def, z)
-% FORWARD_MAP Evaluates forward conformal map M(z) and its complex derivative M'(z).
+%FORWARD_MAP Evaluate forward conformal map M(z) and its complex derivative M'(z).
+%   [X, M_PRIME] = FORWARD_MAP(DEF, Z) evaluates the conformal transformation
+%   x = M(z) from the physical complex plane to the reference interval [-1, 1],
+%   along with its complex derivative M'(z).
 %
-% Syntax:
-%   [x, M_prime] = forward_map(def, z)
+%   Inputs:
+%       def     - Contour definition structure
+%       z       - Complex coordinate(s) on or near the physical contour
 %
-% Inputs:
-%   def     - Contour definition struct (generated via create_curve_def)
-%   z       - Complex coordinate(s) on or near the physical contour (column vector)
-%
-% Outputs:
-%   x       - Conformal coordinate(s) on the reference interval [-1, 1]
-%   M_prime - Complex derivative dM/dz evaluated at z
-%
-% Description:
-%   Computes the direct conformal transformation x = M(z) from the physical complex
-%   plane back to the unit interval [-1, 1]:
-%     * Interval:     M(z) = (a + b - 2*z) / (a - b)
-%     * Forward ray:  M(z) = (z - a - c) / (z - a + c),      where c = exp(i*theta)*L
-%     * Backward ray: M(z) = (a + c - z) / (z - a + c)
-%     * Circular arc: M(z) = K * (z - a - c) / (z - a + c),  where K = -i*cot((th2-th1)/4)
+%   Outputs:
+%       x       - Conformal coordinate(s) on the reference interval [-1, 1]
+%       M_prime - Complex derivative dM/dz evaluated at z
 
     z = z(:);
     type = lower(def.type);

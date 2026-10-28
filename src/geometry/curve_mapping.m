@@ -1,21 +1,16 @@
 function [curves_points, curves_info] = curve_mapping(curve_defs, x_interval)
-% CURVE_MAPPING Maps unit interval collocation nodes to physical complex contours.
+%CURVE_MAPPING Map reference interval collocation nodes to physical complex contours.
+%   [CURVES_POINTS, CURVES_INFO] = CURVE_MAPPING(CURVE_DEFS, X_INTERVAL)
+%   evaluates the conformal inverse map z = M^{-1}(x) from [-1, 1] onto physical
+%   segments, circular arcs, or unbounded rays.
 %
-% Syntax:
-%   [curves_points, curves_info] = curve_mapping(curve_defs, x_interval)
+%   Inputs:
+%       curve_defs    - Array or struct of contour definitions
+%       x_interval    - Reference collocation nodes on [-1, 1] (column vector)
 %
-% Inputs:
-%   curve_defs - Array or struct of contour definitions (via create_curve_def)
-%   x_interval - Reference collocation nodes on [-1, 1] (column vector)
-%
-% Outputs:
-%   curves_points - Cell array containing mapped complex coordinates for each contour
-%   curves_info   - Struct array containing contour metadata, including M_inf = M(infinity)
-%
-% Description:
-%   Implements the inverse conformal mappings z = M^{-1}(x) from [-1, 1] onto
-%   finite segments, circular arcs, or unbounded rays. For unbounded rays,
-%   the node corresponding to infinity is automatically sliced out to prevent inf/NaN.
+%   Outputs:
+%       curves_points - Cell array of mapped complex coordinates for each contour
+%       curves_info   - Struct array containing contour metadata and image of infinity
 
     if nargin < 2
         error('curve_mapping: Requires contour definitions and reference nodes.');
@@ -33,7 +28,6 @@ function [curves_points, curves_info] = curve_mapping(curve_defs, x_interval)
 
         switch type
             case 'interval'
-                % Linear segment mapping: z(x) = a + (b-a)*(x+1)/2
                 a = def.a;
                 b = def.b;
                 z = a + (b - a) * (x + 1) / 2;
@@ -46,7 +40,6 @@ function [curves_points, curves_info] = curve_mapping(curve_defs, x_interval)
                 end
 
             case 'ray'
-                % Conformal rational map for unbounded ray
                 a     = def.a;
                 theta = def.theta;
                 if ~isfield(def, 'L') || isempty(def.L)
@@ -62,8 +55,7 @@ function [curves_points, curves_info] = curve_mapping(curve_defs, x_interval)
                 end
 
                 if strcmp(direction, 'forward')
-                    % Forward ray: origin at x = -1, infinity at x = +1
-                    x_use = x(1:end-1); % Exclude infinity
+                    x_use = x(1:end-1);
                     if isempty(x_use)
                         warning('curve_mapping: All nodes removed for forward ray %d.', idx);
                         curves_points{idx} = [];
@@ -73,8 +65,7 @@ function [curves_points, curves_info] = curve_mapping(curve_defs, x_interval)
                     z = a + c * (1 + x_use) ./ (1 - x_use);
                     curves_info(idx).M_inf = 1;
                 else
-                    % Backward ray: origin at x = +1, infinity at x = -1
-                    x_use = x(2:end); % Exclude infinity
+                    x_use = x(2:end);
                     if isempty(x_use)
                         warning('curve_mapping: All nodes removed for backward ray %d.', idx);
                         curves_points{idx} = [];
@@ -87,7 +78,6 @@ function [curves_points, curves_info] = curve_mapping(curve_defs, x_interval)
                 curves_points{idx} = z;
 
             case 'arc'
-                % Conformal Möbius map for circular arc
                 a   = def.a; 
                 r   = def.r;
                 th1 = def.theta1; 
@@ -98,7 +88,6 @@ function [curves_points, curves_info] = curve_mapping(curve_defs, x_interval)
                 c = r * exp(1i * mid_theta);
                 coeff = -1i * cot((th2 - th1) / 4);
 
-                % Inverse map: z(x) = a + c * (x + coeff) / (coeff - x)
                 z = a + c .* (x_use + coeff) ./ (coeff - x_use);
 
                 curves_points{idx} = z;

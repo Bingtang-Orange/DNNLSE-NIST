@@ -1,29 +1,21 @@
 function def = create_curve_def(type, varargin)
-% CREATE_CURVE_DEF Initializes a geometric contour specification struct.
+%CREATE_CURVE_DEF Initialize geometric contour specification structure.
+%   DEF = CREATE_CURVE_DEF('interval', A, B)
+%   DEF = CREATE_CURVE_DEF('ray', A, THETA, L)
+%   DEF = CREATE_CURVE_DEF('ray', A, THETA, L, DIRECTION)
+%   DEF = CREATE_CURVE_DEF('arc', A, R, THETA1, THETA2)
 %
-% Syntax:
-%   def = create_curve_def('interval', a, b)
-%   def = create_curve_def('ray', a, theta, L)
-%   def = create_curve_def('ray', a, theta, L, direction) % 'forward' (default) or 'backward'
-%   def = create_curve_def('arc', a, r, theta1, theta2)
+%   Inputs:
+%       type     - String specifying contour family: 'interval', 'ray', or 'arc'
+%       varargin - Parameter list corresponding to the chosen contour type:
+%                    * 'interval': a (start point), b (end point)
+%                    * 'ray'     : a (origin), theta (launch angle), L (scaling parameter),
+%                                  direction ('forward' or 'backward')
+%                    * 'arc'     : a (center), r (radius), theta1 (start angle), theta2 (end angle)
 %
-% Inputs:
-%   type      - String specifying contour family: 'interval', 'ray', or 'arc'
-%   varargin  - Parameter list corresponding to the chosen contour type:
-%                 * 'interval': a (start point), b (end point)
-%                 * 'ray'     : a (origin), theta (launch angle), L (scaling parameter),
-%                               direction ('forward' or 'backward')
-%                 * 'arc'     : a (center), r (radius), theta1 (start angle), theta2 (end angle)
-%
-% Outputs:
-%   def       - Standardized contour definition struct
-%
-% References:
-%   S. Olver, Numer. Math. (2012), Section 4.
-%   T. Trogdon and S. Olver, "Riemann-Hilbert Problems, Their Numerical Solution,
-%   and the Computation of Nonlinear Special Functions", SIAM (2016).
+%   Outputs:
+%       def      - Standardized contour definition structure
 
-    % Initialize all struct fields to maintain consistent memory layout
     def = struct('type', type, ...
                  'a', [], 'b', [], ...
                  'theta', [], 'L', [], 'direction', [], ...
@@ -49,7 +41,7 @@ function def = create_curve_def(type, varargin)
             if nargin >= 5 && ~isempty(varargin{4})
                 def.direction = varargin{4};
             else
-                def.direction = 'forward'; % Default orientation
+                def.direction = 'forward';
             end
 
         case 'arc'
