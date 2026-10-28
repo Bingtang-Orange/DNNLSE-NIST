@@ -1,8 +1,5 @@
-% Multi-time scale evolution and benchmark for RHP II solver.
-
 clear; clc; close all;
 
-%% Parameters and tasks
 q0_handle = @(x) 0.9 * exp(-x.^2 + x);
 q0 = chebfun(q0_handle, [-20, 20]);
 
@@ -17,7 +14,6 @@ L_spectral = 8.0;
 n_ray      = 24;
 n_real     = 64;
 
-%% Initialize parallel pool
 pool = gcp('nocreate');
 if isempty(pool)
     parpool('Processes');
@@ -26,7 +22,6 @@ end
 time_records = zeros(size(tasks, 1), 1);
 results = cell(size(tasks, 1), 1);
 
-%% Main computation loop
 for k_task = 1:size(tasks, 1)
     t_val = tasks{k_task, 1};
     x_lim = tasks{k_task, 2};
@@ -95,11 +90,10 @@ for k_task = 1:size(tasks, 1)
     xlabel('$x$', 'Interpreter', 'latex', 'FontSize', 11);
     ylabel('$\mathrm{Im}\,q(x, t)$', 'Interpreter', 'latex', 'FontSize', 11);
     title(sprintf('$t = %g$', t_val), 'Interpreter', 'latex', 'FontSize', 12);
-    legend('Location', 'northeast', 'FontSize', 10);
+    legend('Location', 'northeast', 'Interpreter', 'latex', 'FontSize', 10);
     set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 10);
 end
 
-%% Benchmark summary
 fprintf('==================================================================================\n');
 fprintf('                           Benchmark Summary                                      \n');
 fprintf('==================================================================================\n');

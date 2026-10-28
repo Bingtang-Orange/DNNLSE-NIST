@@ -1,10 +1,7 @@
-% Convergence of reflection coefficients with respect to domain truncation length L.
-
 clear; clc; close all;
 warning('off', 'chebfun:constructor');
 warning('off', 'chebfun:compose');
 
-%% Parameters and benchmark potentials
 lambda = 0.5;
 L_list = 1:1:80;
 num_L  = length(L_list);
@@ -31,7 +28,6 @@ fprintf('=====================================================\n');
 fprintf('  Truncation Convergence Test (lambda = %.2f)\n', lambda);
 fprintf('=====================================================\n\n');
 
-%% Compute reflection coefficients
 for f_idx = 1:num_funcs
     f = funcs{f_idx};
     fprintf('>>> Testing profile: %s (%d/%d)\n', func_names_console{f_idx}, f_idx, num_funcs);
@@ -65,7 +61,6 @@ for f_idx = 1:num_funcs
     fprintf('+------+---------------------+-------------+\n\n');
 end
 
-%% Stability assessment
 fprintf('=== Stability Assessment in Asymptotic Plateau (L >= 40) ===\n');
 for f_idx = 1:num_funcs
     rho_stable = rho_all(f_idx, 40:end);
@@ -74,7 +69,6 @@ for f_idx = 1:num_funcs
 end
 fprintf('============================================================\n\n');
 
-%% Plot truncation error
 figure('Color', 'w', 'Position', [150, 150, 720, 520]);
 hold on;
 

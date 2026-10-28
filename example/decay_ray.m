@@ -1,15 +1,11 @@
-% Verification of asymptotic decay rate along the characteristic ray x = -3t.
-
 clear; clc; close all;
 
-%% Parameters and initial potential
 q0_handle = @(x) 0.9 * exp(-x.^2 + x);
 q0 = chebfun(q0_handle, [-20, 20]);
 
 ratio_c = -3.0; 
 lambda0_const = ratio_c / 4.0;
 
-%% Theoretical asymptotic decay exponent
 [r0, rh0] = compute_reflection(lambda0_const, q0, 8.0);
 det_fac0 = 1.0 - r0 * rh0;
 
@@ -28,7 +24,6 @@ fprintf('  nu_R             = %.6f\n', nu_R);
 fprintf('  nu_I             = %.6f\n', nu_I);
 fprintf('  Theoretical decay slope alpha_theory = %.6f\n\n', alpha_theory);
 
-%% Solve RHP IV along the ray
 num_t = 41;
 t_grid = logspace(2, 4, num_t).';
 x_grid = ratio_c * t_grid;
@@ -56,7 +51,6 @@ t_cost = toc(t_start);
 fprintf('Computation completed in %.2f s (%.2f s/point).\n', t_cost, t_cost / num_t);
 fprintf('Maximum zero-sum residual: %.2e\n\n', max(zs_records));
 
-%% Linear regression
 abs_q = abs(q_vals);
 log_t = log10(t_grid);
 log_q = log10(abs_q);
@@ -74,7 +68,6 @@ fprintf('  Theoretical slope : alpha_theory = %.6f\n', alpha_theory);
 fprintf('  Absolute error    : |diff|       = %.4e\n', abs(fit_slope - alpha_theory));
 fprintf('=========================================================\n\n');
 
-%% Plot decay dynamics
 figure('Color', 'w', 'Position', [100, 150, 1050, 420]);
 
 subplot(1, 2, 1);

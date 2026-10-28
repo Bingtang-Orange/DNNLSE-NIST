@@ -1,8 +1,5 @@
-% Solution snapshots and wave packet evolution using RHP I solver.
-
 clear; clc; close all;
 
-%% Parameters
 q0_handle = @(x) 0.9 * exp(-x.^2 + x);
 L = 5;
 n = 400;
@@ -12,7 +9,6 @@ num_pts = 601;
 x_grid = linspace(-x_range_max, x_range_max, num_pts).';
 t_list = [0, 1, 2];
 
-%% Spatial and spectral setup
 x_I = flipud(cos(pi*(0:n-1)'/(n-1)));
 def = create_curve_def('interval', -L, L);
 pts = curve_mapping(def, x_I);
@@ -25,7 +21,6 @@ tic;
 [rho, rho_hat] = compute_reflection(lambda, q0, L);
 fprintf('Done in %.2f s.\n\n', toc);
 
-%% Solve RHP I across time snapshots
 Q = cell(length(t_list), 1);
 for kt = 1:length(t_list)
     t_try = t_list(kt);
@@ -40,11 +35,9 @@ for kt = 1:length(t_list)
     fprintf('  max|q| = %.6e\n\n', max(abs(qv)));
 end
 
-%% Plot t = 0 snapshot
 figure('Position', [100, 100, 950, 350]);
 plot_full(x_grid, Q{1}, 0, -20, 20, q0_handle);
 
-%% Plot t = 1 snapshot
 figure('Position', [100, 100, 950, 1050]);
 
 subplot(3, 1, 1);
@@ -58,7 +51,6 @@ plot_local(x_grid, Q{2}, 1, 5, 15);
 
 sgtitle('$q(x, t=1)$', 'Interpreter', 'latex', 'FontSize', 13);
 
-%% Plot t = 2 snapshot
 figure('Position', [100, 100, 950, 1050]);
 
 subplot(3, 1, 1);
@@ -72,7 +64,6 @@ plot_local(x_grid, Q{3}, 2, 10, 25);
 
 sgtitle('$q(x, t=2)$', 'Interpreter', 'latex', 'FontSize', 13);
 
-%% Helper functions
 function plot_full(x_grid, qv, t_val, x_lo, x_hi, q0_handle)
     mask = x_grid >= x_lo & x_grid <= x_hi;
     xx = x_grid(mask);

@@ -1,8 +1,5 @@
-% Cross-validation between independent solvers for RHP II and RHP IV at t = 1.
-
 clear; clc; close all;
 
-%% Parameters and spatial grid
 q0_handle = @(x) 0.9 * exp(-x.^2 + x);
 q0 = chebfun(q0_handle, [-20, 20]);
 t_val = 1.0;
@@ -13,7 +10,6 @@ dx    =  0.2;
 x_grid = (x_min:dx:x_max).';
 num_pts = length(x_grid);
 
-%% Parallel solve for RHP II and RHP IV
 pool = gcp('nocreate');
 if isempty(pool)
     parpool('Processes');
@@ -38,7 +34,6 @@ t_cost = toc(t_start);
 abs_diff = abs(q_rhp2 - q_rhp4);
 fprintf('Done in %.2f s. Maximum absolute discrepancy: %.3e\n\n', t_cost, max(abs_diff));
 
-%% Plot comparison and discrepancy
 fig = figure('Color', 'w', 'Position', [100, 150, 1050, 430]);
 
 subplot(1, 2, 1);
@@ -53,20 +48,20 @@ plot(x_grid(idx_mark), imag(q_rhp4(idx_mark)), 'ks', 'MarkerSize', 4.5, ...
 
 grid on; box on;
 xlim([x_min, x_max]);
-xlabel('x', 'FontSize', 11);
-ylabel('q(x, 1)', 'FontSize', 11);
-title('(a) Solution Profiles at t = 1', 'FontSize', 12);
-legend('Location', 'northeast', 'FontSize', 9);
+xlabel('$x$', 'Interpreter', 'latex', 'FontSize', 11);
+ylabel('$q(x, 1)$', 'Interpreter', 'latex', 'FontSize', 11);
+title('(a) Solution Profiles at $t = 1$', 'Interpreter', 'latex', 'FontSize', 12);
+legend('Location', 'northeast', 'Interpreter', 'latex', 'FontSize', 9);
 
 subplot(1, 2, 2);
 semilogy(x_grid, abs_diff, 'm-', 'LineWidth', 1.3, ...
-         'DisplayName', '|q^{\mathrm{RHP\,II}} - q^{\mathrm{RHP\,IV}}|'); hold on;
+         'DisplayName', '$|q^{\mathrm{RHP\,II}} - q^{\mathrm{RHP\,IV}}|$'); hold on;
 semilogy(x_grid(idx_mark), abs_diff(idx_mark), 'm.', 'MarkerSize', 10, 'HandleVisibility', 'off');
 
 grid on; box on;
 xlim([x_min, x_max]);
 ylim([1e-9, 1e-5]);
-xlabel('x', 'FontSize', 11);
-ylabel('Absolute Difference', 'FontSize', 11);
-title('(b) Pointwise Discrepancy', 'FontSize', 12);
-legend('Location', 'northeast', 'FontSize', 10);
+xlabel('$x$', 'Interpreter', 'latex', 'FontSize', 11);
+ylabel('Absolute Difference', 'Interpreter', 'latex', 'FontSize', 11);
+title('(b) Pointwise Discrepancy', 'Interpreter', 'latex', 'FontSize', 12);
+legend('Location', 'northeast', 'Interpreter', 'latex', 'FontSize', 10);

@@ -1,8 +1,5 @@
-% Numerical inverse scattering reconstruction using RHP IV at t = 30.
-
 clear; clc; close all;
 
-%% Parameters and spatial grid
 q0_handle = @(x) 0.9 * exp(-x.^2 + x);
 q0 = chebfun(q0_handle, [-20, 20]);
 
@@ -25,20 +22,17 @@ fprintf('  DNNLSE RHP IV Solver (t = %g)\n', t_val);
 fprintf('  Domain: [%.1f, %.1f], dx = %.2f (%d points)\n', x_min, x_max, dx, num_pts);
 fprintf('==================================================================================\n');
 
-%% Start parallel pool
 pool = gcp('nocreate');
 if isempty(pool)
     pool = parpool('Processes');
 end
 num_workers = pool.NumWorkers;
 
-%% Setup progress queue
 q_vals        = complex(zeros(num_pts, 1));
 zerosum_vals  = zeros(num_pts, 1);
 data_queue    = parallel.pool.DataQueue;
 afterEach(data_queue, @(idx) progress_counter(num_pts));
 
-%% Parallel RHP IV solve
 t_start = tic;
 parfor j = 1:num_pts
     [qv, info] = solve_rhp4(x_grid(j), t_val, q0, 8.0, 8.0, 24, 20);
@@ -51,7 +45,6 @@ t_cost = toc(t_start);
 fprintf('Computation finished in %.2f s (%.4f s/pt).\n', t_cost, t_cost / num_pts);
 fprintf('Maximum zero-sum residual: %.3e\n\n', max(zerosum_vals));
 
-%% Plot solution and envelope
 q_abs = abs(q_vals);
 
 figure('Color', 'w', 'Position', [100, 100, 1050, 700]);
@@ -77,7 +70,6 @@ ylabel('Im q(x, 30)', 'FontSize', 12);
 legend('Location', 'northeast', 'FontSize', 10);
 set(gca, 'FontSize', 11, 'LineWidth', 0.8);
 
-%% Helper functions
 function progress_counter(total_pts)
     persistent current_count
     if isempty(current_count)

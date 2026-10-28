@@ -1,10 +1,7 @@
-% Plot reflection coefficients rho(lambda) and rho_hat(lambda).
-
 clear; clc; close all;
 warning('off', 'chebfun:constructor');
 warning('off', 'chebfun:compose');
 
-%% Parameters and potential
 L = 5;
 lambda_vec = -5.0:0.05:5.0;
 num_lambda = length(lambda_vec);
@@ -18,7 +15,6 @@ pot.q_neg_c_left  = chebfun(@(x) conj(q_func(-x)), [-L, 0]);
 pot.q_right       = chebfun(@(x) q_func(x),        [0, L]);
 pot.q_neg_c_right = chebfun(@(x) conj(q_func(-x)), [0, L]);
 
-%% Compute scattering data
 s11_arr     = zeros(1, num_lambda);
 s12_arr     = zeros(1, num_lambda);
 s21_arr     = zeros(1, num_lambda);
@@ -42,7 +38,6 @@ for k = 1:num_lambda
     rho_hat_arr(k) = s21_arr(k) / s11_arr(k);
 end
 
-%% Plot reflection coefficients
 figure('Color', 'w', 'Position', [150, 100, 800, 600]);
 
 c_real = '#0072BD';
@@ -82,7 +77,6 @@ xlabel('$\lambda$', 'Interpreter', 'latex', 'FontSize', 14);
 ylabel('$\hat{\rho}(\lambda)$', 'Interpreter', 'latex', 'FontSize', 14);
 legend('Interpreter', 'latex', 'FontSize', 11, 'Location', 'northeast', 'Box', 'on');
 
-%% Summary
 pt_discrepancy = max(abs(rho_arr - conj(rho_hat_arr)));
 
 fprintf('\n================== Summary of Plotted Data ======================\n');

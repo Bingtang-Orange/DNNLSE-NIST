@@ -1,10 +1,7 @@
-% Validation of direct scattering against exact closed-form expressions.
-
 clear; clc;
 warning('off', 'chebfun:constructor');
 warning('off', 'chebfun:compose');
 
-%% Parameters and potential
 L = 40;
 lambda_vec = -2.0:0.5:2.0;
 num_lambda = length(lambda_vec);
@@ -18,7 +15,6 @@ pot.q_neg_c_left  = chebfun(@(x) conj(f(-x)), [-L, 0], 'splitting', 'on');
 pot.q_right       = chebfun(@(x) f(x), [0, L], 'splitting', 'on');
 pot.q_neg_c_right = chebfun(0, [0, L]);
 
-%% Numerical scattering data
 s11_num = zeros(1, num_lambda);
 s21_num = zeros(1, num_lambda);
 
@@ -30,7 +26,6 @@ for k = 1:num_lambda
     s21_num(k) = S(2,1);
 end
 
-%% Exact scattering data and errors
 I1_exact  = 2 ./ (1 + 1i - 2i*lambda_vec).^3;
 I2_exact  = 2 ./ (1 - 1i - 2i*lambda_vec).^3;
 s21_exact = I1_exact;
@@ -39,7 +34,6 @@ s11_exact = 1 + I1_exact .* I2_exact;
 err_s11 = abs(s11_num - s11_exact);
 err_s21 = abs(s21_num - s21_exact);
 
-%% Display results
 fprintf('\n===================================================================\n');
 fprintf('  Validation of Direct Scattering Coefficients\n');
 fprintf('===================================================================\n');

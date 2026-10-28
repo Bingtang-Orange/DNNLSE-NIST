@@ -1,15 +1,11 @@
-% Validation of direct scattering for one-sided benchmark potentials.
-
 clear; clc; close all;
 warning('off', 'chebfun:constructor');
 warning('off', 'chebfun:compose');
 
-%% Parameters
 L = 40;
 lambda_vec = -2.0:0.1:2.0;
 num_lambda = length(lambda_vec);
 
-%% Benchmark potentials
 ICs = struct();
 
 ICs(1).name    = '$f_1(x)$';
@@ -36,7 +32,6 @@ num_ICs = length(ICs);
 err_s11 = zeros(num_ICs, num_lambda);
 err_s21 = zeros(num_ICs, num_lambda);
 
-%% Compute scattering data and errors
 for idx = 1:num_ICs
     f = ICs(idx).f;
     
@@ -66,7 +61,6 @@ for idx = 1:num_ICs
     err_s21(idx, :) = abs(s21_arr - s21_ref);
 end
 
-%% Display error table
 fprintf('\n==================== Error Summary Table ========================\n');
 fprintf('%-15s %-18s %-18s\n', 'Benchmark', 'max |Err(s11)|', 'max |Err(s21)|');
 fprintf('-----------------------------------------------------------------\n');
@@ -75,7 +69,6 @@ for idx = 1:num_ICs
 end
 fprintf('=================================================================\n\n');
 
-%% Plot pointwise errors
 figure('Color', 'w', 'Position', [100, 100, 800, 600]);
 colors  = {'#0072BD', '#D95319', '#2CA02C', '#7E2F8E'};
 markers = {'o', 's', '^', 'd'};

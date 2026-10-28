@@ -1,6 +1,3 @@
-% Spectral convergence of RHP IV solver with respect to collocation points n.
-% Evaluates true relative error against a high-resolution reference solution (n_ref = 120).
-
 clear; clc; close all;
 
 q0_handle = @(x) 0.9 * exp(-x.^2 + x);
@@ -39,7 +36,6 @@ for k = 1:num_n
     n_curr = n_list(k);
     [q_curr, info] = solve_rhp4(x_test, t_test, q0, L_space, L_spectral, n_curr, n_curr);
     
-    % True relative error against the benchmark q_ref
     rel_err = abs(q_curr - q_ref) / abs(q_ref);
     
     q_records(k)   = q_curr;
