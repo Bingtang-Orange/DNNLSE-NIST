@@ -13,10 +13,8 @@ function C_Gamma = cauchy_def_5_9(x, n, def)
 
     C_Gamma = cauchy_def_5_6(x, n, def);
 
-    if ~isfield(def, 'M_inf') || isempty(def.M_inf) || isinf(def.M_inf)
-        error('cauchy_def_5_9: def.M_inf must be a finite scalar. Verify curve definition.');
-    end
-    M_inf = def.M_inf;
+    [~, info] = curve_mapping(def, 0);
+    M_inf = info.M_inf;
 
     z = M_inf - sqrt(M_inf - 1) .* sqrt(M_inf + 1);
     Psi_z = psi_row(z, n);
